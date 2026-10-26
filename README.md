@@ -9,7 +9,7 @@ ve şifre bilgisayarınızdan hiçbir yere gitmez.
 
 ## Canlı demo
 
-GitHub Pages'i açtıktan sonra: `https://<kullanıcı-adınız>.github.io/wifi-qr/`
+**https://ncosy.github.io/wifi-qr/**
 
 Ya da `index.html` dosyasını indirip çift tıklayın — kurulum gerekmez.
 
