@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wi-Fi QR Oluşturucu</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+  :root{
+    --ink:#13211d;
+    --paper:#f3efe6;
+    --signal:#2f8f6b;
+    --signal-deep:#1c6149;
+    --line:#cdc6b6;
+    --muted:#6f6a5d;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    min-height:100vh;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:32px 18px 60px;
+  }
+  .wrap{width:100%;max-width:780px}
+  header{margin-bottom:28px}
+  .eyebrow{
+    font-size:12px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--signal-deep);font-weight:700;margin-bottom:8px;
+  }
+  h1{font-size:clamp(26px,5vw,38px);line-height:1.05;font-weight:800;letter-spacing:-.02em}
+  .sub{color:var(--muted);margin-top:10px;font-size:15px;max-width:46ch;line-height:1.5}
+  .grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:34px;
+  }
+  @media(max-width:620px){.grid{grid-template-columns:1fr;gap:24px}}
+  .panel{
+    background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px;
+  }
+  label{display:block;font-size:13px;font-weight:700;margin:0 0 7px;letter-spacing:.01em}
+  .field{margin-bottom:18px}
+  input[type=text],input[type=password],select{
+    width:100%;padding:12px 13px;border:1.5px solid var(--line);border-radius:11px;
+    font-size:15px;background:#fbfaf6;color:var(--ink);transition:border-color .15s;
+  }
+  input:focus,select:focus{outline:none;border-color:var(--signal)}
+  .row{display:flex;align-items:center;gap:9px;margin-bottom:6px}
+  .row input[type=checkbox]{width:18px;height:18px;accent-color:var(--signal)}
+  .row label{margin:0;font-weight:600;font-size:14px}
+  .hint{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.45}
+  .qr-stage{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;
+  }
+  .qr-card{
+    background:#fff;border-radius:16px;padding:20px;
+    border:1px solid var(--line);
+    width:240px;height:240px;display:flex;align-items:center;justify-content:center;
+  }
+  .qr-card img{width:100%;height:100%;image-rendering:pixelated}
+  .placeholder{color:var(--muted);font-size:13px;line-height:1.5;padding:0 18px}
+  .net-name{margin-top:16px;font-weight:800;font-size:17px;word-break:break-all}
+  .net-meta{color:var(--muted);font-size:13px;margin-top:3px}
+  .btns{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;justify-content:center}
+  button{
+    font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;
+    padding:11px 18px;border-radius:11px;border:1.5px solid var(--signal-deep);
+    background:var(--signal-deep);color:#fff;transition:transform .1s,opacity .15s;
+  }
+  button.ghost{background:transparent;color:var(--signal-deep)}
+  button:active{transform:translateY(1px)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  .steps{
+    margin-top:34px;border-top:1px solid var(--line);padding-top:22px;
+    display:grid;grid-template-columns:1fr 1fr;gap:20px;
+  }
+  @media(max-width:620px){.steps{grid-template-columns:1fr}}
+  .step h3{font-size:14px;font-weight:800;margin-bottom:7px;display:flex;align-items:center;gap:8px}
+  .badge{font-size:11px;background:var(--signal);color:#fff;padding:2px 8px;border-radius:20px;letter-spacing:.04em}
+  .step p{font-size:13.5px;color:var(--muted);line-height:1.55}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Wi-Fi · QR Bağlantı</div>
+    <h1>Okut, otomatik bağlan</h1>
+    <p class="sub">Ağ bilgilerini gir, QR'ı telefona okut. iPhone kamerası ve Android kamerası (veya Google Lens) bunu tanıyıp şifreyi otomatik girer.</p>
+  </header>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="field">
+        <label for="ssid">Wi-Fi adı (SSID)</label>
+        <input type="text" id="ssid" placeholder="Örn: EvWifi" autocomplete="off">
+        <div class="hint">Tam olarak modemdeki ad gibi yaz; büyük/küçük harf önemli.</div>
+      </div>
+      <div class="field">
+        <label for="pass">Şifre</label>
+        <input type="password" id="pass" placeholder="Wi-Fi şifresi" autocomplete="off">
+        <div class="row" style="margin-top:8px">
+          <input type="checkbox" id="showpass">
+          <label for="showpass">Şifreyi göster</label>
+        </div>
+      </div>
+      <div class="field">
+        <label for="enc">Güvenlik türü</label>
+        <select id="enc">
+          <option value="WPA">WPA/WPA2/WPA3 (en yaygın)</option>
+          <option value="WEP">WEP (eski)</option>
+          <option value="nopass">Şifresiz</option>
+        </select>
+      </div>
+      <div class="row">
+        <input type="checkbox" id="hidden">
+        <label for="hidden">Bu ağ gizli (SSID yayını kapalı)</label>
+      </div>
+    </div>
+
+    <div class="panel qr-stage">
+      <div class="qr-card" id="card">
+        <span class="placeholder" id="ph">Ağ adını yazınca<br>QR burada görünecek</span>
+      </div>
+      <div class="net-name" id="netname"></div>
+      <div class="net-meta" id="netmeta"></div>
+      <div class="btns">
+        <button id="dl" disabled>PNG indir</button>
+        <button id="print" class="ghost" disabled>Yazdır</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <h3><span class="badge">iOS</span> iPhone / iPad</h3>
+      <p>Kamera uygulamasını aç, QR'a doğrult. Üstte çıkan "Ağa Katıl" bildirimine dokun. (iOS 11 ve sonrası)</p>
+    </div>
+    <div class="step">
+      <h3><span class="badge">Android</span> Telefon / Tablet</h3>
+      <p>Kamerayı QR'a doğrult ya da Google Lens'i kullan. Çıkan Wi-Fi bağlantısına dokun. (Android 10 ve sonrası)</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const ssid = $('ssid'), pass = $('pass'), enc = $('enc'), hidden = $('hidden');
+  const card = $('card'), ph = $('ph'), netname = $('netname'), netmeta = $('netmeta');
+  const dlBtn = $('dl'), printBtn = $('print');
+  let currentDataUrl = null;
+
+  // QR formatında özel karakterleri kaçışla
+  function esc(s){
+    return s.replace(/([\\;,:"])/g, '\\$1');
+  }
+
+  function buildPayload(){
+    const s = ssid.value.trim();
+    if(!s) return null;
+    const t = enc.value;
+    if(t === 'nopass'){
+      return `WIFI:T:nopass;S:${esc(s)};${hidden.checked ? 'H:true;' : ''};`;
+    }
+    return `WIFI:T:${t};S:${esc(s)};P:${esc(pass.value)};${hidden.checked ? 'H:true;' : ''};`;
+  }
+
+  function render(){
+    const payload = buildPayload();
+    if(!payload){
+      card.innerHTML = '';
+      card.appendChild(ph);
+      netname.textContent = '';
+      netmeta.textContent = '';
+      dlBtn.disabled = printBtn.disabled = true;
+      currentDataUrl = null;
+      return;
+    }
+    const qr = qrcode(0, 'M');       // tip 0 = otomatik boyut, M = orta hata düzeltme
+    qr.addData(payload);
+    qr.make();
+    currentDataUrl = qr.createDataURL(8, 16); // hücre boyutu, kenar boşluğu
+    card.innerHTML = `<img alt="Wi-Fi QR" src="${currentDataUrl}">`;
+    netname.textContent = ssid.value.trim();
+    const labels = {WPA:'WPA/WPA2/WPA3', WEP:'WEP', nopass:'Şifresiz'};
+    netmeta.textContent = labels[enc.value] + (hidden.checked ? ' · gizli ağ' : '');
+    dlBtn.disabled = printBtn.disabled = false;
+  }
+
+  [ssid, pass, enc, hidden].forEach(el => el.addEventListener('input', render));
+
+  $('showpass').addEventListener('change', e => {
+    pass.type = e.target.checked ? 'text' : 'password';
+  });
+
+  dlBtn.addEventListener('click', () => {
+    if(!currentDataUrl) return;
+    const a = document.createElement('a');
+    a.href = currentDataUrl;
+    a.download = `wifi-${(ssid.value.trim()||'qr').replace(/[^a-z0-9]/gi,'_')}.png`;
+    a.click();
+  });
+
+  printBtn.addEventListener('click', () => {
+    if(!currentDataUrl) return;
+    const w = window.open('', '_blank');
+    w.document.write(`<html><head><title>Wi-Fi QR</title></head>
+      <body style="font-family:sans-serif;text-align:center;padding:40px">
+      <h2>${ssid.value.trim()}</h2>
+      <img src="${currentDataUrl}" style="width:300px;height:300px">
+      <p style="color:#666">Telefon kamerasıyla okutun</p>
+      </body></html>`);
+    w.document.close();
+    w.focus();
+    setTimeout(() => w.print(), 300);
+  });
+</script>
+</body>
+</html>

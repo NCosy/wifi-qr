@@ -1,0 +1,10 @@
+# Üretilen QR görselleri — gerçek ağ adı ve şifresini içerir, asla commit'lenmemeli
+wifi-*.png
+*.qr.png
+
+# İşletim sistemi / editör artıkları
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/
+.idea/
